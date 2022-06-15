@@ -1,21 +1,21 @@
 {
-  "name": "puppeteer-test",
+  "name": "node-scraping",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "scrripts": {
+    "test": "vitest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "repository": "git@github.com:482F/node-scraping.git",
+  "author": "482F <0ryonryoko0@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
   "dependencies": {
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "prettier": "^2.4.1",
-    "puppeteer": "^11.0.0"
+    "@482/js-utils": "https://github.com/482F/482-js-utils.git",
+    "puppeteer": "^14.4.1",
+    "sqlite3": "^5.0.8"
   },
   "devDependencies": {
-    "eslint": "^8.2.0"
+    "vitest": "^0.15.1"
   }
 }
