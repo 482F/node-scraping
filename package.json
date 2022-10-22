@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "@482/js-utils": "https://github.com/482F/482-js-utils.git",
+    "node-fetch": "^3.2.10",
     "puppeteer": "^14.4.1",
     "sqlite3": "^5.0.8"
   },

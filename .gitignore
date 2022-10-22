@@ -1,2 +1,3 @@
 node_modules/*
-hashes.txt
+yarn.lock
+*.sqlite3
