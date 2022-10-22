@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import getPso2Emg from './gtav-events.js'
+import getPso2Emg from './pso2-emg.js'
 import * as history from './history.js'
 
 describe('pso2-emg', () => {
