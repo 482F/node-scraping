@@ -43,14 +43,18 @@ export default async function getPso2Emg(useHistory = true, dbName) {
         }
 
         const df = (n) => n.toString().padStart(2, '0')
+        const y = df(date.getFullYear())
+        const mo = df(date.getMonth() + 1)
+        const d = df(date.getDate())
         return {
           text: row,
-          dateText: datum.created_at + row,
+          dateText: `${y}/${mo}/${d} ${row}`,
         }
       })
     })
     .filter((datum) => !datum.text.match(/開催中|\(\d+時/))
 
+  console.log(emgs)
   const filteredEmgs = await (() => {
     if (useHistory) {
       return history.filterAndRegister('pso2-emgs', emgs, 'dateText', dbName)
