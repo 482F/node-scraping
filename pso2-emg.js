@@ -1,5 +1,7 @@
 import fetch from 'node-fetch'
-import info from './info.json' assert { type: 'json' }
+import JSON5 from 'json5'
+import fs from 'node:fs/promises'
+const info = JSON5.parse(await fs.readFile('./info.json5'))
 import * as history from './history.js'
 
 export default async function getPso2Emg(useHistory = true, dbName) {
@@ -54,7 +56,7 @@ export default async function getPso2Emg(useHistory = true, dbName) {
       return history.filterAndRegister('pso2-emgs', emgs, 'dateText', dbName)
     }
 
-    return events
+    return emgs
   })()
 
   return {
