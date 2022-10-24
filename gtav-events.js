@@ -1,17 +1,5 @@
-#!/usr/bin/env node
-
-const puppeteer = require('puppeteer')
-
-async function getScriptDirPath() {
-  const fs = require('fs')
-  const scriptPath = process.argv[1]
-  const scriptRealPath = await new Promise((resolve) =>
-    fs.realpath(scriptPath, (err, result) => resolve(result))
-  )
-  const path = require('path')
-  const scriptDirPath = path.dirname(scriptRealPath)
-  return scriptDirPath
-}
+import puppeteer from 'puppeteer'
+import * as history from './history.js'
 
 function getJSON() {
   return JSON.parse(document.body.innerText)
@@ -54,43 +42,41 @@ function eventToObj(event) {
   }
 }
 
-async function main() {
-  const fs = require('fs').promises
-  const scriptDir = await getScriptDirPath()
-  const hashesTxt = `${scriptDir}/hashes.txt`
-  const hashes = (await fs.readFile(hashesTxt, 'utf-8')).split('\n')
-
+export default async function getGtavEvents(useHistory = true, dbName) {
   const browser = await puppeteer.launch({ headless: true })
-  const page = await browser.newPage()
-  await page.setExtraHTTPHeaders({
-    'Accept-Language': 'ja-JP',
-  })
-  await page.setDefaultNavigationTimeout(1000 * 60 * 30)
+  try {
+    const page = await browser.newPage()
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'ja-JP',
+    })
+    await page.setDefaultNavigationTimeout(1000 * 60 * 30)
 
-  const eventsUrl = 'https://socialclub.rockstargames.com/events?gameId=GTAV'
-  await page.goto(eventsUrl)
+    await page.goto('https://socialclub.rockstargames.com/events?gameId=GTAV')
+    await page.goto(
+      'https://socialclub.rockstargames.com/events/eventlisting?pageId=1&gameId=GTAV'
+    )
 
-  await page.goto(
-    'https://socialclub.rockstargames.com/events/eventlisting?pageId=1&gameId=GTAV'
-  )
-  const json = await page.evaluate(getJSON)
+    const { events } = await page.evaluate(getJSON)
 
-  const events = json.events.filter(
-    (event) => !hashes.includes(event.urlHash) && event.isLive
-  )
+    events.forEach(
+      (event) => (event.dateAndDesc = event.startDate + event.description)
+    )
 
-  if (events.length === 0) {
-    process.exit(1)
+    const filteredEvents = await (() => {
+      if (useHistory) {
+        return history.filterAndRegister(
+          'gtav-events',
+          events,
+          'dateAndDesc',
+          dbName
+        )
+      }
+
+      return events
+    })()
+
+    return { items: filteredEvents, text: eventsToText(filteredEvents) }
+  } finally {
+    await browser.close()
   }
-
-  console.log(eventsUrl + '\n')
-
-  console.log(eventsToText(events))
-
-  const newHashes = [...hashes, ...events.map((event) => event.urlHash)]
-  await fs.writeFile(hashesTxt, newHashes.join('\n'))
-
-  process.exit(0)
 }
-
-main()
