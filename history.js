@@ -62,7 +62,14 @@ async function _filter(db, name, arr, key) {
     )
     .then((rows) => rows.map(({ hash }) => hash))
 
-  return arr.filter((item) => !existsHashes.includes(createHash(item[key])))
+  return arr.filter((item) => {
+    const hash = createHash(item[key])
+    const isExist = existsHashes.includes(hash)
+    if (!isExist) {
+      existsHashes.push(hash)
+    }
+    return !isExist
+  })
 }
 
 export async function filter(name, arr, key, dbName) {
