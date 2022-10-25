@@ -22,7 +22,10 @@ function eventsToText(rawEvents) {
     }
     result += '\n'
   }
-  return 'https://socialclub.rockstargames.com/events?gameId=GTAV\n\n' + result
+  if (result) {
+    result = 'https://socialclub.rockstargames.com/events?gameId=GTAV\n\n' + result
+  }
+  return result
 }
 
 function eventToObj(event) {
