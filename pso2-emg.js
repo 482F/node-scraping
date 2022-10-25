@@ -54,7 +54,6 @@ export default async function getPso2Emg(useHistory = true, dbName) {
     })
     .filter((datum) => !datum.text.match(/開催中|\(\d+時/))
 
-  console.log(emgs)
   const filteredEmgs = await (() => {
     if (useHistory) {
       return history.filterAndRegister('pso2-emgs', emgs, 'dateText', dbName)
