@@ -22,7 +22,7 @@ function eventsToText(rawEvents) {
     }
     result += '\n'
   }
-  return result
+  return 'https://socialclub.rockstargames.com/events?gameId=GTAV\n\n' + result
 }
 
 function eventToObj(event) {
