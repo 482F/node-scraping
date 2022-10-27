@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer'
+import fetch from 'node-fetch'
 import * as history from './history.js'
 
 function getJSON() {
@@ -43,40 +43,32 @@ function eventToObj(event) {
 }
 
 export default async function getGtavEvents(useHistory = true, dbName) {
-  const browser = await puppeteer.launch({ headless: true })
-  try {
-    const page = await browser.newPage()
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'ja-JP',
-    })
-    await page.setDefaultNavigationTimeout(1000 * 60 * 30)
+  const { events } = await fetch(
+    'https://socialclub.rockstargames.com/events/eventlisting?pageId=1&gameId=GTAV',
+    {
+      headers: {
+        'accept-language': 'ja,en-US;q=0.9,en;q=0.8',
+        cookie: 'AutoLoginCheck=1',
+      },
+    }
+  ).then((r) => r.json())
 
-    await page.goto('https://socialclub.rockstargames.com/events?gameId=GTAV')
-    await page.goto(
-      'https://socialclub.rockstargames.com/events/eventlisting?pageId=1&gameId=GTAV'
-    )
+  events.forEach(
+    (event) => (event.dateAndDesc = event.startDate + event.description)
+  )
 
-    const { events } = await page.evaluate(getJSON)
+  const filteredEvents = await (() => {
+    if (useHistory) {
+      return history.filterAndRegister(
+        'gtav-events',
+        events,
+        'dateAndDesc',
+        dbName
+      )
+    }
 
-    events.forEach(
-      (event) => (event.dateAndDesc = event.startDate + event.description)
-    )
+    return events
+  })()
 
-    const filteredEvents = await (() => {
-      if (useHistory) {
-        return history.filterAndRegister(
-          'gtav-events',
-          events,
-          'dateAndDesc',
-          dbName
-        )
-      }
-
-      return events
-    })()
-
-    return { items: filteredEvents, text: eventsToText(filteredEvents) }
-  } finally {
-    await browser.close()
-  }
+  return { items: filteredEvents, text: eventsToText(filteredEvents) }
 }
