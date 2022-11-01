@@ -62,8 +62,11 @@ export default async function getPso2Emg(useHistory = true, dbName) {
     return emgs
   })()
 
+  const text = filteredEmgs.length
+    ? 'pso2\n' + filteredEmgs.map(({ text }) => text).join('\n')
+    : ''
   return {
     items: filteredEmgs,
-    text: filteredEmgs.map(({ text }) => text).join('\n'),
+    text,
   }
 }
