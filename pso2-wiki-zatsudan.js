@@ -58,6 +58,7 @@ export default async function getPso2WikiZatsudan(useHistory = true, dbName) {
   }
 
   const items = comments
+    .slice(0, -30)
     .map((comment) => processComment(comment, ''))
     .map((comment) => ({ text: comment }))
 
