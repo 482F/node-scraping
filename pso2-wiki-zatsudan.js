@@ -36,7 +36,7 @@ async function getComments(domain) {
       body: line
         .replace(/^-+/, '')
         .replace(/ --  &new{\d+-\d+-\d+ \(.\) \d+:\d+:\d+};$/, '')
-        .replaceAll(/\[\[(.+?)>(.+?)\]\]/g, '$1 ($2)'),
+        .replaceAll(/\[\[(.+?)>(.+?)\]\]/g, '$1 ($2) '),
       children: [],
     }
     parents[depth].children.push(comment)
