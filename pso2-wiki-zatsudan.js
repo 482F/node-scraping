@@ -3,27 +3,24 @@ import jsdom from 'jsdom'
 const { JSDOM } = jsdom
 import * as history from './history.js'
 
-export default async function getPso2WikiZatsudan(useHistory = true, dbName) {
-  async function getValue(domain) {
-    const recentBody = await fetch(
-      `https://${domain}/index.php?雑談掲示板`
-    ).then((r) => r.text())
+async function getComments(domain) {
+  const recentBody = await fetch(`https://${domain}/index.php?雑談掲示板`).then(
+    (r) => r.text()
+  )
 
-    const vol = recentBody.match(/雑談掲示板Vol(\d+)/)[1]
+  const vol = recentBody.match(/雑談掲示板Vol(\d+)/)[1]
 
-    const url = `https://${domain}/index.php?Comments%2F雑談掲示板Vol${vol}`
+  const url = `https://${domain}/index.php?Comments%2F雑談掲示板Vol${vol}`
 
-    const rawHtml = await fetch(
-      `https://${domain}/index.php?cmd=edit&page=Comments%2F雑談掲示板Vol${vol}`
-    ).then((r) => r.text())
-    const dom = new JSDOM(rawHtml)
-    const document = dom.window.document
-    return document.querySelector('textarea#msg').value.replace(/^[^-]+/, '')
-  }
+  const rawHtml = await fetch(
+    `https://${domain}/index.php?cmd=edit&page=Comments%2F雑談掲示板Vol${vol}`
+  ).then((r) => r.text())
+  const dom = new JSDOM(rawHtml)
+  const document = dom.window.document
 
-  const value = await Promise.all(
-    ['pso2.swiki.jp', 'pso2ngs.swiki.jp'].map(getValue)
-  ).then((values) => values.join('\n'))
+  const value = document
+    .querySelector('textarea#msg')
+    .value.replace(/^[^-]+/, '')
   const comments = []
   const parents = [null, { children: comments }]
   const lines = value.split('\n').map((line) => line.replace(/^\/\//, ''))
@@ -61,6 +58,13 @@ export default async function getPso2WikiZatsudan(useHistory = true, dbName) {
     .slice(0, -30)
     .map((comment) => processComment(comment, ''))
     .map((comment) => ({ text: comment }))
+  return items
+}
+
+export default async function getPso2WikiZatsudan(useHistory = true, dbName) {
+  const items = await Promise.all(
+    ['pso2.swiki.jp', 'pso2ngs.swiki.jp'].map(getComments)
+  ).then((comments) => comments.flat())
 
   const filteredItems = await (() => {
     if (useHistory) {
