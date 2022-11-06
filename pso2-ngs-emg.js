@@ -30,7 +30,11 @@ export default async function getPso2Emg(useHistory = true, dbName) {
   const result = await fetch(url, { headers }).then((r) => r.json())
 
   const emgs = result.data.flatMap((datum) => {
-    const text = datum.text.replaceAll(/\n\n/g, '\n').replaceAll(/^#.+$/gm, '')
+    const text = datum.text
+      .replaceAll(/\n\n/g, '\n')
+      .replaceAll(/^#.+$/gm, '')
+      .replaceAll(/\n└/g, ': ')
+      .replaceAll(/』\n-/g, '』 -')
     const date = new Date(datum.created_at)
     const df = (n) => n.toString().padStart(2, '0')
     const y = df(date.getFullYear())
