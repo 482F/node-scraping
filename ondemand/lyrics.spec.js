@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import getLyricSites from './lyrics.js'
+import getLyricSites from './lyrics.mjs'
 
 describe('lyrics', () => {
   test('getLyricSites', async () => {
